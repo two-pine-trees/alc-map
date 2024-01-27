@@ -8,12 +8,13 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
-        <link rel="stylesheet" href="css/MarkerCluster.css">
-        <link rel="stylesheet" href="css/MarkerCluster.Default.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
-        #map {
-            width: 1287px;
-            height: 931px;
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
         }
         </style>
         <title></title>
@@ -21,9 +22,11 @@
     <body>
         <div id="map">
         </div>
+        <div class="example4">
+            <img src=".\css\images\凡例.png" width="200" alt="">
+        </div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
-        <script src="js/multi-style-layer.js"></script>
         <script src="js/leaflet.rotatedMarker.js"></script>
         <script src="js/leaflet.pattern.js"></script>
         <script src="js/leaflet-hash.js"></script>
@@ -31,7 +34,7 @@
         <script src="js/rbush.min.js"></script>
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
-        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-measure.js"></script>
         <script src="data/_1.js"></script>
         <script src="data/1kmtiba_2.js"></script>
         <script src="data/1kmtokyo_3.js"></script>
@@ -48,8 +51,8 @@
         <script src="data/whisky_14.js"></script>
         <script>
         var map = L.map('map', {
-            zoomControl:true, maxZoom:14, minZoom:5
-        }).fitBounds([[35.76375501105874,139.2704124287854],[36.064360823558985,139.68621271841118]]);
+            zoomControl:true, maxZoom:20, minZoom:5
+        }).fitBounds([[35.51175186272196,139.11806630113026],[35.92190811272194,139.68539760495125]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -66,6 +69,18 @@
          }
          return tempDiv.innerHTML;
         }
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
         var bounds_group = new L.featureGroup([]);
         function setBounds() {
         }
@@ -76,7 +91,7 @@
             opacity: 1.0,
             attribution: '',
             minZoom: 5,
-            maxZoom: 14,
+            maxZoom: 20,
             minNativeZoom: 0,
             maxNativeZoom: 18
         });
@@ -103,28 +118,11 @@
         function style__1_0() {
             return {
                 pane: 'pane__1',
-                shape: 'square',
-                radius: 6.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(12,15,94,1.0)',
-                interactive: true,
-            }
-        }
-        function style__1_1() {
-            return {
-                pane: 'pane__1',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/_1.svg',
-            iconSize: [11.399999999999999, 11.399999999999999]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -132,253 +130,32 @@
         map.createPane('pane__1');
         map.getPane('pane__1').style.zIndex = 401;
         map.getPane('pane__1').style['mix-blend-mode'] = 'normal';
-        var layer__1 = new L.geoJson.multiStyle(json__1, {
+        var layer__1 = new L.geoJson(json__1, {
             attribution: '',
             interactive: true,
             dataVar: 'json__1',
             layerName: 'layer__1',
             pane: 'pane__1',
             onEachFeature: pop__1,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style__1_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style__1_1(feature));
             },
-        ]});
-        var cluster__1 = new L.MarkerClusterGroup({showCoverageOnHover: false,
-            spiderfyDistanceMultiplier: 2});
-        cluster__1.addLayer(layer__1);
-
+        });
         bounds_group.addLayer(layer__1);
-        cluster__1.addTo(map);
+        map.addLayer(layer__1);
         function pop_1kmtiba_2(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_001</th>\
+                        <td>' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_01'] !== null ? autolinker.link(feature.properties['P11_003_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_02'] !== null ? autolinker.link(feature.properties['P11_003_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_03'] !== null ? autolinker.link(feature.properties['P11_003_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_04'] !== null ? autolinker.link(feature.properties['P11_003_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_05'] !== null ? autolinker.link(feature.properties['P11_003_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_06'] !== null ? autolinker.link(feature.properties['P11_003_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_07'] !== null ? autolinker.link(feature.properties['P11_003_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_08'] !== null ? autolinker.link(feature.properties['P11_003_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_09'] !== null ? autolinker.link(feature.properties['P11_003_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_10'] !== null ? autolinker.link(feature.properties['P11_003_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_11'] !== null ? autolinker.link(feature.properties['P11_003_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_12'] !== null ? autolinker.link(feature.properties['P11_003_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_13'] !== null ? autolinker.link(feature.properties['P11_003_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_14'] !== null ? autolinker.link(feature.properties['P11_003_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_15'] !== null ? autolinker.link(feature.properties['P11_003_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_16'] !== null ? autolinker.link(feature.properties['P11_003_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_17'] !== null ? autolinker.link(feature.properties['P11_003_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_18'] !== null ? autolinker.link(feature.properties['P11_003_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_19'] !== null ? autolinker.link(feature.properties['P11_003_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_20'] !== null ? autolinker.link(feature.properties['P11_003_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_21'] !== null ? autolinker.link(feature.properties['P11_003_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_22'] !== null ? autolinker.link(feature.properties['P11_003_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_23'] !== null ? autolinker.link(feature.properties['P11_003_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_24'] !== null ? autolinker.link(feature.properties['P11_003_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_25'] !== null ? autolinker.link(feature.properties['P11_003_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_26'] !== null ? autolinker.link(feature.properties['P11_003_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_27'] !== null ? autolinker.link(feature.properties['P11_003_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_28'] !== null ? autolinker.link(feature.properties['P11_003_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_29'] !== null ? autolinker.link(feature.properties['P11_003_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_30'] !== null ? autolinker.link(feature.properties['P11_003_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_31'] !== null ? autolinker.link(feature.properties['P11_003_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_32'] !== null ? autolinker.link(feature.properties['P11_003_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_33'] !== null ? autolinker.link(feature.properties['P11_003_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_34'] !== null ? autolinker.link(feature.properties['P11_003_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_35'] !== null ? autolinker.link(feature.properties['P11_003_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_01'] !== null ? autolinker.link(feature.properties['P11_004_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_02'] !== null ? autolinker.link(feature.properties['P11_004_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_03'] !== null ? autolinker.link(feature.properties['P11_004_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_04'] !== null ? autolinker.link(feature.properties['P11_004_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_05'] !== null ? autolinker.link(feature.properties['P11_004_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_06'] !== null ? autolinker.link(feature.properties['P11_004_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_07'] !== null ? autolinker.link(feature.properties['P11_004_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_08'] !== null ? autolinker.link(feature.properties['P11_004_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_09'] !== null ? autolinker.link(feature.properties['P11_004_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_10'] !== null ? autolinker.link(feature.properties['P11_004_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_11'] !== null ? autolinker.link(feature.properties['P11_004_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_12'] !== null ? autolinker.link(feature.properties['P11_004_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_13'] !== null ? autolinker.link(feature.properties['P11_004_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_14'] !== null ? autolinker.link(feature.properties['P11_004_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_15'] !== null ? autolinker.link(feature.properties['P11_004_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_16'] !== null ? autolinker.link(feature.properties['P11_004_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_17'] !== null ? autolinker.link(feature.properties['P11_004_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_18'] !== null ? autolinker.link(feature.properties['P11_004_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_19'] !== null ? autolinker.link(feature.properties['P11_004_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_20'] !== null ? autolinker.link(feature.properties['P11_004_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_21'] !== null ? autolinker.link(feature.properties['P11_004_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_22'] !== null ? autolinker.link(feature.properties['P11_004_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_23'] !== null ? autolinker.link(feature.properties['P11_004_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_24'] !== null ? autolinker.link(feature.properties['P11_004_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_25'] !== null ? autolinker.link(feature.properties['P11_004_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_26'] !== null ? autolinker.link(feature.properties['P11_004_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_27'] !== null ? autolinker.link(feature.properties['P11_004_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_28'] !== null ? autolinker.link(feature.properties['P11_004_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_29'] !== null ? autolinker.link(feature.properties['P11_004_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_30'] !== null ? autolinker.link(feature.properties['P11_004_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_31'] !== null ? autolinker.link(feature.properties['P11_004_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_32'] !== null ? autolinker.link(feature.properties['P11_004_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_33'] !== null ? autolinker.link(feature.properties['P11_004_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_34'] !== null ? autolinker.link(feature.properties['P11_004_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_35'] !== null ? autolinker.link(feature.properties['P11_004_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_005'] !== null ? autolinker.link(feature.properties['P11_005'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_002</th>\
+                        <td>' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
@@ -391,28 +168,11 @@
         function style_1kmtiba_2_0() {
             return {
                 pane: 'pane_1kmtiba_2',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_1kmtiba_2_1() {
-            return {
-                pane: 'pane_1kmtiba_2',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/1kmtiba_2.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -420,249 +180,32 @@
         map.createPane('pane_1kmtiba_2');
         map.getPane('pane_1kmtiba_2').style.zIndex = 402;
         map.getPane('pane_1kmtiba_2').style['mix-blend-mode'] = 'normal';
-        var layer_1kmtiba_2 = new L.geoJson.multiStyle(json_1kmtiba_2, {
+        var layer_1kmtiba_2 = new L.geoJson(json_1kmtiba_2, {
             attribution: '',
             interactive: true,
             dataVar: 'json_1kmtiba_2',
             layerName: 'layer_1kmtiba_2',
             pane: 'pane_1kmtiba_2',
             onEachFeature: pop_1kmtiba_2,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_1kmtiba_2_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_1kmtiba_2_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_1kmtiba_2);
         map.addLayer(layer_1kmtiba_2);
         function pop_1kmtokyo_3(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_001</th>\
+                        <td>' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_01'] !== null ? autolinker.link(feature.properties['P11_003_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_02'] !== null ? autolinker.link(feature.properties['P11_003_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_03'] !== null ? autolinker.link(feature.properties['P11_003_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_04'] !== null ? autolinker.link(feature.properties['P11_003_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_05'] !== null ? autolinker.link(feature.properties['P11_003_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_06'] !== null ? autolinker.link(feature.properties['P11_003_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_07'] !== null ? autolinker.link(feature.properties['P11_003_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_08'] !== null ? autolinker.link(feature.properties['P11_003_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_09'] !== null ? autolinker.link(feature.properties['P11_003_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_10'] !== null ? autolinker.link(feature.properties['P11_003_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_11'] !== null ? autolinker.link(feature.properties['P11_003_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_12'] !== null ? autolinker.link(feature.properties['P11_003_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_13'] !== null ? autolinker.link(feature.properties['P11_003_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_14'] !== null ? autolinker.link(feature.properties['P11_003_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_15'] !== null ? autolinker.link(feature.properties['P11_003_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_16'] !== null ? autolinker.link(feature.properties['P11_003_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_17'] !== null ? autolinker.link(feature.properties['P11_003_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_18'] !== null ? autolinker.link(feature.properties['P11_003_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_19'] !== null ? autolinker.link(feature.properties['P11_003_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_20'] !== null ? autolinker.link(feature.properties['P11_003_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_21'] !== null ? autolinker.link(feature.properties['P11_003_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_22'] !== null ? autolinker.link(feature.properties['P11_003_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_23'] !== null ? autolinker.link(feature.properties['P11_003_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_24'] !== null ? autolinker.link(feature.properties['P11_003_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_25'] !== null ? autolinker.link(feature.properties['P11_003_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_26'] !== null ? autolinker.link(feature.properties['P11_003_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_27'] !== null ? autolinker.link(feature.properties['P11_003_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_28'] !== null ? autolinker.link(feature.properties['P11_003_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_29'] !== null ? autolinker.link(feature.properties['P11_003_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_30'] !== null ? autolinker.link(feature.properties['P11_003_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_31'] !== null ? autolinker.link(feature.properties['P11_003_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_32'] !== null ? autolinker.link(feature.properties['P11_003_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_33'] !== null ? autolinker.link(feature.properties['P11_003_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_34'] !== null ? autolinker.link(feature.properties['P11_003_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_35'] !== null ? autolinker.link(feature.properties['P11_003_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_01'] !== null ? autolinker.link(feature.properties['P11_004_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_02'] !== null ? autolinker.link(feature.properties['P11_004_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_03'] !== null ? autolinker.link(feature.properties['P11_004_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_04'] !== null ? autolinker.link(feature.properties['P11_004_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_05'] !== null ? autolinker.link(feature.properties['P11_004_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_06'] !== null ? autolinker.link(feature.properties['P11_004_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_07'] !== null ? autolinker.link(feature.properties['P11_004_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_08'] !== null ? autolinker.link(feature.properties['P11_004_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_09'] !== null ? autolinker.link(feature.properties['P11_004_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_10'] !== null ? autolinker.link(feature.properties['P11_004_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_11'] !== null ? autolinker.link(feature.properties['P11_004_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_12'] !== null ? autolinker.link(feature.properties['P11_004_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_13'] !== null ? autolinker.link(feature.properties['P11_004_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_14'] !== null ? autolinker.link(feature.properties['P11_004_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_15'] !== null ? autolinker.link(feature.properties['P11_004_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_16'] !== null ? autolinker.link(feature.properties['P11_004_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_17'] !== null ? autolinker.link(feature.properties['P11_004_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_18'] !== null ? autolinker.link(feature.properties['P11_004_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_19'] !== null ? autolinker.link(feature.properties['P11_004_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_20'] !== null ? autolinker.link(feature.properties['P11_004_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_21'] !== null ? autolinker.link(feature.properties['P11_004_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_22'] !== null ? autolinker.link(feature.properties['P11_004_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_23'] !== null ? autolinker.link(feature.properties['P11_004_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_24'] !== null ? autolinker.link(feature.properties['P11_004_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_25'] !== null ? autolinker.link(feature.properties['P11_004_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_26'] !== null ? autolinker.link(feature.properties['P11_004_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_27'] !== null ? autolinker.link(feature.properties['P11_004_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_28'] !== null ? autolinker.link(feature.properties['P11_004_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_29'] !== null ? autolinker.link(feature.properties['P11_004_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_30'] !== null ? autolinker.link(feature.properties['P11_004_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_31'] !== null ? autolinker.link(feature.properties['P11_004_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_32'] !== null ? autolinker.link(feature.properties['P11_004_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_33'] !== null ? autolinker.link(feature.properties['P11_004_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_34'] !== null ? autolinker.link(feature.properties['P11_004_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_35'] !== null ? autolinker.link(feature.properties['P11_004_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_005'] !== null ? autolinker.link(feature.properties['P11_005'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_002</th>\
+                        <td>' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
@@ -675,28 +218,11 @@
         function style_1kmtokyo_3_0() {
             return {
                 pane: 'pane_1kmtokyo_3',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_1kmtokyo_3_1() {
-            return {
-                pane: 'pane_1kmtokyo_3',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/1kmtokyo_3.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -704,249 +230,32 @@
         map.createPane('pane_1kmtokyo_3');
         map.getPane('pane_1kmtokyo_3').style.zIndex = 403;
         map.getPane('pane_1kmtokyo_3').style['mix-blend-mode'] = 'normal';
-        var layer_1kmtokyo_3 = new L.geoJson.multiStyle(json_1kmtokyo_3, {
+        var layer_1kmtokyo_3 = new L.geoJson(json_1kmtokyo_3, {
             attribution: '',
             interactive: true,
             dataVar: 'json_1kmtokyo_3',
             layerName: 'layer_1kmtokyo_3',
             pane: 'pane_1kmtokyo_3',
             onEachFeature: pop_1kmtokyo_3,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_1kmtokyo_3_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_1kmtokyo_3_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_1kmtokyo_3);
         map.addLayer(layer_1kmtokyo_3);
         function pop_1kmsaitama_4(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_001</th>\
+                        <td>' + (feature.properties['P11_001'] !== null ? autolinker.link(feature.properties['P11_001'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_01'] !== null ? autolinker.link(feature.properties['P11_003_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_02'] !== null ? autolinker.link(feature.properties['P11_003_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_03'] !== null ? autolinker.link(feature.properties['P11_003_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_04'] !== null ? autolinker.link(feature.properties['P11_003_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_05'] !== null ? autolinker.link(feature.properties['P11_003_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_06'] !== null ? autolinker.link(feature.properties['P11_003_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_07'] !== null ? autolinker.link(feature.properties['P11_003_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_08'] !== null ? autolinker.link(feature.properties['P11_003_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_09'] !== null ? autolinker.link(feature.properties['P11_003_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_10'] !== null ? autolinker.link(feature.properties['P11_003_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_11'] !== null ? autolinker.link(feature.properties['P11_003_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_12'] !== null ? autolinker.link(feature.properties['P11_003_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_13'] !== null ? autolinker.link(feature.properties['P11_003_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_14'] !== null ? autolinker.link(feature.properties['P11_003_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_15'] !== null ? autolinker.link(feature.properties['P11_003_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_16'] !== null ? autolinker.link(feature.properties['P11_003_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_17'] !== null ? autolinker.link(feature.properties['P11_003_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_18'] !== null ? autolinker.link(feature.properties['P11_003_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_19'] !== null ? autolinker.link(feature.properties['P11_003_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_20'] !== null ? autolinker.link(feature.properties['P11_003_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_21'] !== null ? autolinker.link(feature.properties['P11_003_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_22'] !== null ? autolinker.link(feature.properties['P11_003_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_23'] !== null ? autolinker.link(feature.properties['P11_003_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_24'] !== null ? autolinker.link(feature.properties['P11_003_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_25'] !== null ? autolinker.link(feature.properties['P11_003_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_26'] !== null ? autolinker.link(feature.properties['P11_003_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_27'] !== null ? autolinker.link(feature.properties['P11_003_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_28'] !== null ? autolinker.link(feature.properties['P11_003_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_29'] !== null ? autolinker.link(feature.properties['P11_003_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_30'] !== null ? autolinker.link(feature.properties['P11_003_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_31'] !== null ? autolinker.link(feature.properties['P11_003_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_32'] !== null ? autolinker.link(feature.properties['P11_003_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_33'] !== null ? autolinker.link(feature.properties['P11_003_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_34'] !== null ? autolinker.link(feature.properties['P11_003_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_003_35'] !== null ? autolinker.link(feature.properties['P11_003_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_01'] !== null ? autolinker.link(feature.properties['P11_004_01'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_02'] !== null ? autolinker.link(feature.properties['P11_004_02'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_03'] !== null ? autolinker.link(feature.properties['P11_004_03'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_04'] !== null ? autolinker.link(feature.properties['P11_004_04'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_05'] !== null ? autolinker.link(feature.properties['P11_004_05'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_06'] !== null ? autolinker.link(feature.properties['P11_004_06'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_07'] !== null ? autolinker.link(feature.properties['P11_004_07'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_08'] !== null ? autolinker.link(feature.properties['P11_004_08'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_09'] !== null ? autolinker.link(feature.properties['P11_004_09'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_10'] !== null ? autolinker.link(feature.properties['P11_004_10'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_11'] !== null ? autolinker.link(feature.properties['P11_004_11'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_12'] !== null ? autolinker.link(feature.properties['P11_004_12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_13'] !== null ? autolinker.link(feature.properties['P11_004_13'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_14'] !== null ? autolinker.link(feature.properties['P11_004_14'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_15'] !== null ? autolinker.link(feature.properties['P11_004_15'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_16'] !== null ? autolinker.link(feature.properties['P11_004_16'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_17'] !== null ? autolinker.link(feature.properties['P11_004_17'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_18'] !== null ? autolinker.link(feature.properties['P11_004_18'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_19'] !== null ? autolinker.link(feature.properties['P11_004_19'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_20'] !== null ? autolinker.link(feature.properties['P11_004_20'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_21'] !== null ? autolinker.link(feature.properties['P11_004_21'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_22'] !== null ? autolinker.link(feature.properties['P11_004_22'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_23'] !== null ? autolinker.link(feature.properties['P11_004_23'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_24'] !== null ? autolinker.link(feature.properties['P11_004_24'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_25'] !== null ? autolinker.link(feature.properties['P11_004_25'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_26'] !== null ? autolinker.link(feature.properties['P11_004_26'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_27'] !== null ? autolinker.link(feature.properties['P11_004_27'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_28'] !== null ? autolinker.link(feature.properties['P11_004_28'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_29'] !== null ? autolinker.link(feature.properties['P11_004_29'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_30'] !== null ? autolinker.link(feature.properties['P11_004_30'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_31'] !== null ? autolinker.link(feature.properties['P11_004_31'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_32'] !== null ? autolinker.link(feature.properties['P11_004_32'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_33'] !== null ? autolinker.link(feature.properties['P11_004_33'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_34'] !== null ? autolinker.link(feature.properties['P11_004_34'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_004_35'] !== null ? autolinker.link(feature.properties['P11_004_35'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P11_005'] !== null ? autolinker.link(feature.properties['P11_005'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">P11_002</th>\
+                        <td>' + (feature.properties['P11_002'] !== null ? autolinker.link(feature.properties['P11_002'].toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
@@ -959,28 +268,11 @@
         function style_1kmsaitama_4_0() {
             return {
                 pane: 'pane_1kmsaitama_4',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_1kmsaitama_4_1() {
-            return {
-                pane: 'pane_1kmsaitama_4',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/1kmsaitama_4.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -988,27 +280,21 @@
         map.createPane('pane_1kmsaitama_4');
         map.getPane('pane_1kmsaitama_4').style.zIndex = 404;
         map.getPane('pane_1kmsaitama_4').style['mix-blend-mode'] = 'normal';
-        var layer_1kmsaitama_4 = new L.geoJson.multiStyle(json_1kmsaitama_4, {
+        var layer_1kmsaitama_4 = new L.geoJson(json_1kmsaitama_4, {
             attribution: '',
             interactive: true,
             dataVar: 'json_1kmsaitama_4',
             layerName: 'layer_1kmsaitama_4',
             pane: 'pane_1kmsaitama_4',
             onEachFeature: pop_1kmsaitama_4,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_1kmsaitama_4_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_1kmsaitama_4_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_1kmsaitama_4);
         map.addLayer(layer_1kmsaitama_4);
         function pop__5(feature, layer) {
@@ -1040,28 +326,11 @@
         function style__5_0() {
             return {
                 pane: 'pane__5',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(23,255,240,1.0)',
-                interactive: true,
-            }
-        }
-        function style__5_1() {
-            return {
-                pane: 'pane__5',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/_5.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1069,27 +338,21 @@
         map.createPane('pane__5');
         map.getPane('pane__5').style.zIndex = 405;
         map.getPane('pane__5').style['mix-blend-mode'] = 'normal';
-        var layer__5 = new L.geoJson.multiStyle(json__5, {
+        var layer__5 = new L.geoJson(json__5, {
             attribution: '',
             interactive: true,
             dataVar: 'json__5',
             layerName: 'layer__5',
             pane: 'pane__5',
             onEachFeature: pop__5,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style__5_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style__5_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer__5);
         map.addLayer(layer__5);
         function pop__6(feature, layer) {
@@ -1121,28 +384,11 @@
         function style__6_0() {
             return {
                 pane: 'pane__6',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(23,255,240,1.0)',
-                interactive: true,
-            }
-        }
-        function style__6_1() {
-            return {
-                pane: 'pane__6',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/_6.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1150,27 +396,21 @@
         map.createPane('pane__6');
         map.getPane('pane__6').style.zIndex = 406;
         map.getPane('pane__6').style['mix-blend-mode'] = 'normal';
-        var layer__6 = new L.geoJson.multiStyle(json__6, {
+        var layer__6 = new L.geoJson(json__6, {
             attribution: '',
             interactive: true,
             dataVar: 'json__6',
             layerName: 'layer__6',
             pane: 'pane__6',
             onEachFeature: pop__6,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style__6_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style__6_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer__6);
         map.addLayer(layer__6);
         function pop__7(feature, layer) {
@@ -1202,28 +442,11 @@
         function style__7_0() {
             return {
                 pane: 'pane__7',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(23,255,240,1.0)',
-                interactive: true,
-            }
-        }
-        function style__7_1() {
-            return {
-                pane: 'pane__7',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/_7.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1231,27 +454,21 @@
         map.createPane('pane__7');
         map.getPane('pane__7').style.zIndex = 407;
         map.getPane('pane__7').style['mix-blend-mode'] = 'normal';
-        var layer__7 = new L.geoJson.multiStyle(json__7, {
+        var layer__7 = new L.geoJson(json__7, {
             attribution: '',
             interactive: true,
             dataVar: 'json__7',
             layerName: 'layer__7',
             pane: 'pane__7',
             onEachFeature: pop__7,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style__7_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style__7_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer__7);
         map.addLayer(layer__7);
         function pop__8(feature, layer) {
@@ -1283,28 +500,11 @@
         function style__8_0() {
             return {
                 pane: 'pane__8',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(23,255,240,1.0)',
-                interactive: true,
-            }
-        }
-        function style__8_1() {
-            return {
-                pane: 'pane__8',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/_8.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1312,27 +512,21 @@
         map.createPane('pane__8');
         map.getPane('pane__8').style.zIndex = 408;
         map.getPane('pane__8').style['mix-blend-mode'] = 'normal';
-        var layer__8 = new L.geoJson.multiStyle(json__8, {
+        var layer__8 = new L.geoJson(json__8, {
             attribution: '',
             interactive: true,
             dataVar: 'json__8',
             layerName: 'layer__8',
             pane: 'pane__8',
             onEachFeature: pop__8,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style__8_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style__8_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer__8);
         map.addLayer(layer__8);
         function pop_other_9(feature, layer) {
@@ -1384,28 +578,11 @@
         function style_other_9_0() {
             return {
                 pane: 'pane_other_9',
-                shape: 'square',
-                radius: 12.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_other_9_1() {
-            return {
-                pane: 'pane_other_9',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/other_9.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1413,27 +590,21 @@
         map.createPane('pane_other_9');
         map.getPane('pane_other_9').style.zIndex = 409;
         map.getPane('pane_other_9').style['mix-blend-mode'] = 'normal';
-        var layer_other_9 = new L.geoJson.multiStyle(json_other_9, {
+        var layer_other_9 = new L.geoJson(json_other_9, {
             attribution: '',
             interactive: true,
             dataVar: 'json_other_9',
             layerName: 'layer_other_9',
             pane: 'pane_other_9',
             onEachFeature: pop_other_9,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_other_9_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_other_9_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_other_9);
         map.addLayer(layer_other_9);
         function pop_syotyu_10(feature, layer) {
@@ -1485,28 +656,11 @@
         function style_syotyu_10_0() {
             return {
                 pane: 'pane_syotyu_10',
-                shape: 'square',
-                radius: 12.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_syotyu_10_1() {
-            return {
-                pane: 'pane_syotyu_10',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/syotyu_10.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1514,27 +668,21 @@
         map.createPane('pane_syotyu_10');
         map.getPane('pane_syotyu_10').style.zIndex = 410;
         map.getPane('pane_syotyu_10').style['mix-blend-mode'] = 'normal';
-        var layer_syotyu_10 = new L.geoJson.multiStyle(json_syotyu_10, {
+        var layer_syotyu_10 = new L.geoJson(json_syotyu_10, {
             attribution: '',
             interactive: true,
             dataVar: 'json_syotyu_10',
             layerName: 'layer_syotyu_10',
             pane: 'pane_syotyu_10',
             onEachFeature: pop_syotyu_10,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_syotyu_10_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_syotyu_10_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_syotyu_10);
         map.addLayer(layer_syotyu_10);
         function pop_nihonsyu_11(feature, layer) {
@@ -1586,28 +734,11 @@
         function style_nihonsyu_11_0() {
             return {
                 pane: 'pane_nihonsyu_11',
-                shape: 'square',
-                radius: 12.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_nihonsyu_11_1() {
-            return {
-                pane: 'pane_nihonsyu_11',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/nihonsyu_11.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1615,27 +746,21 @@
         map.createPane('pane_nihonsyu_11');
         map.getPane('pane_nihonsyu_11').style.zIndex = 411;
         map.getPane('pane_nihonsyu_11').style['mix-blend-mode'] = 'normal';
-        var layer_nihonsyu_11 = new L.geoJson.multiStyle(json_nihonsyu_11, {
+        var layer_nihonsyu_11 = new L.geoJson(json_nihonsyu_11, {
             attribution: '',
             interactive: true,
             dataVar: 'json_nihonsyu_11',
             layerName: 'layer_nihonsyu_11',
             pane: 'pane_nihonsyu_11',
             onEachFeature: pop_nihonsyu_11,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_nihonsyu_11_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_nihonsyu_11_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_nihonsyu_11);
         map.addLayer(layer_nihonsyu_11);
         function pop_wine_12(feature, layer) {
@@ -1687,28 +812,11 @@
         function style_wine_12_0() {
             return {
                 pane: 'pane_wine_12',
-                shape: 'square',
-                radius: 12.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_wine_12_1() {
-            return {
-                pane: 'pane_wine_12',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/wine_12.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1716,27 +824,21 @@
         map.createPane('pane_wine_12');
         map.getPane('pane_wine_12').style.zIndex = 412;
         map.getPane('pane_wine_12').style['mix-blend-mode'] = 'normal';
-        var layer_wine_12 = new L.geoJson.multiStyle(json_wine_12, {
+        var layer_wine_12 = new L.geoJson(json_wine_12, {
             attribution: '',
             interactive: true,
             dataVar: 'json_wine_12',
             layerName: 'layer_wine_12',
             pane: 'pane_wine_12',
             onEachFeature: pop_wine_12,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_wine_12_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_wine_12_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_wine_12);
         map.addLayer(layer_wine_12);
         function pop_beer_13(feature, layer) {
@@ -1788,28 +890,11 @@
         function style_beer_13_0() {
             return {
                 pane: 'pane_beer_13',
-                shape: 'square',
-                radius: 12.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_beer_13_1() {
-            return {
-                pane: 'pane_beer_13',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/beer_13.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1817,27 +902,21 @@
         map.createPane('pane_beer_13');
         map.getPane('pane_beer_13').style.zIndex = 413;
         map.getPane('pane_beer_13').style['mix-blend-mode'] = 'normal';
-        var layer_beer_13 = new L.geoJson.multiStyle(json_beer_13, {
+        var layer_beer_13 = new L.geoJson(json_beer_13, {
             attribution: '',
             interactive: true,
             dataVar: 'json_beer_13',
             layerName: 'layer_beer_13',
             pane: 'pane_beer_13',
             onEachFeature: pop_beer_13,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_beer_13_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_beer_13_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_beer_13);
         map.addLayer(layer_beer_13);
         function pop_whisky_14(feature, layer) {
@@ -1889,28 +968,11 @@
         function style_whisky_14_0() {
             return {
                 pane: 'pane_whisky_14',
-                shape: 'square',
-                radius: 10.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,255,255,1.0)',
-                interactive: true,
-            }
-        }
-        function style_whisky_14_1() {
-            return {
-                pane: 'pane_whisky_14',
         rotationAngle: 0.0,
         rotationOrigin: 'center center',
         icon: L.icon({
             iconUrl: 'markers/whisky_14.svg',
-            iconSize: [19.0, 19.0]
+            iconSize: [30.4, 30.4]
         }),
                 interactive: true,
             }
@@ -1918,30 +980,47 @@
         map.createPane('pane_whisky_14');
         map.getPane('pane_whisky_14').style.zIndex = 414;
         map.getPane('pane_whisky_14').style['mix-blend-mode'] = 'normal';
-        var layer_whisky_14 = new L.geoJson.multiStyle(json_whisky_14, {
+        var layer_whisky_14 = new L.geoJson(json_whisky_14, {
             attribution: '',
             interactive: true,
             dataVar: 'json_whisky_14',
             layerName: 'layer_whisky_14',
             pane: 'pane_whisky_14',
             onEachFeature: pop_whisky_14,
-            pointToLayers: [function (feature, latlng) {
+            pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
                 return L.marker(latlng, style_whisky_14_0(feature));
-            },function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_whisky_14_1(feature));
             },
-        ]});
+        });
         bounds_group.addLayer(layer_whisky_14);
         map.addLayer(layer_whisky_14);
         setBounds();
+        var i = 0;
+        layer__1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['駅名'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['駅名']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css__1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer__1]);
+        map.on("zoomend", function(){
+            resetLabels([layer__1]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer__1]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer__1]);
+        });
         </script>
     </body>
 </html>
